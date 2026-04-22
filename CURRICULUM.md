@@ -10,3 +10,4 @@
 
 ## Current Branches
 - `topic/01-intro-main`: Initial project scaffold and introduction.
+- `topic/02-routing-basics-main`: Initial frontend routing architecture, including app shell, sidebar navigation, and page placeholders.
