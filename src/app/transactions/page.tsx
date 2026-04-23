@@ -1,12 +1,29 @@
 import { PageHeader } from "@/components/PageHeader";
+import { getTransactions } from "@/lib/data";
+import TransactionsContainer from "@/components/transactions/TransactionsContainer";
 
-export default function TransactionsPage() {
+// [CONCEPT: Hybrid RSC + CSR Boundary]
+// This page is a React Server Component (RSC).
+// It fetches initial data server-side and passes it to a 'use client' container.
+// This ensures fast initial render (LCP) and interactive filtering (UX).
+
+// [CONCEPT: Dynamic Rendering]
+// Use force-dynamic to always provide fresh transaction data.
+export const dynamic = 'force-dynamic';
+
+export default async function TransactionsPage() {
+  const transactions = await getTransactions();
+  
+  // Extract unique categories for the filters
+  const categories = Array.from(new Set(transactions.map(t => t.category)));
+
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader title="Transactions" />
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <p className="text-slate-600 italic">Transactions history placeholder...</p>
-      </div>
+      <TransactionsContainer 
+        initialTransactions={transactions} 
+        categories={categories} 
+      />
     </div>
   );
 }
