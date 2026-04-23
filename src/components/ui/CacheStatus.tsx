@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface CacheStatusProps {
   timestamp: number;
@@ -31,7 +32,7 @@ export default function CacheStatus({ timestamp, label = 'Data Age', revalidate 
 
   return (
     <div className="flex items-center gap-3 p-3 bg-white border border-stone-200 rounded-lg shadow-sm">
-      <div className={`w-3 h-3 rounded-full ${getStatusColor()} animate-pulse`} />
+      <div className={cn("w-3 h-3 rounded-full animate-pulse", getStatusColor())} />
       <div className="flex flex-col">
         <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">{label}</span>
         <span className="text-sm font-medium text-stone-800">

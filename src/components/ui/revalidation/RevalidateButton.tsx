@@ -1,6 +1,7 @@
 'use client';
 
 import { useFormStatus } from 'react-dom';
+import { cn } from '@/lib/utils';
 
 interface RevalidateButtonProps {
   label: string;
@@ -19,7 +20,10 @@ export default function RevalidateButton({
     <button
       type="submit"
       disabled={pending}
-      className={`${className} flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed`}
+      className={cn(
+        "flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed",
+        className
+      )}
     >
       {pending && (
         <svg className="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
