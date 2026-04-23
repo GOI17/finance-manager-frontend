@@ -11,6 +11,9 @@ interface TransactionsContainerProps {
   initialData: Transaction[];
 }
 
+// [CONCEPT: State Management at Client Boundary]
+// This component encapsulates the filtering state and integrates with URL via searchParams.
+// It uses SWR for client-side data fetching/caching while honoring initial RSC data.
 export function TransactionsContainer({ initialData }: TransactionsContainerProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -115,7 +118,7 @@ export function TransactionsContainer({ initialData }: TransactionsContainerProp
                 </tr>
               ) : transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="py-8 text-center text-slate-400 italic">No transactions found.</td>
+                   <td colSpan={4} className="py-8 text-center text-slate-400 italic">No transactions found.</td>
                 </tr>
               ) : (
                 transactions.map((t: Transaction) => (
@@ -155,7 +158,7 @@ export function TransactionsContainer({ initialData }: TransactionsContainerProp
             </button>
             <button 
               className="px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50"
-              disabled={transactions.length < 5}
+              disabled={transactions.length < 10}
               onClick={() => {
                 const params = new URLSearchParams(searchParams.toString());
                 params.set('page', (parseInt(page) + 1).toString());

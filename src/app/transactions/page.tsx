@@ -2,6 +2,15 @@ import { PageHeader } from "@/components/PageHeader";
 import { TransactionsContainer } from "@/components/transactions/TransactionsContainer";
 import { getTransactions } from "@/lib/data";
 
+// [CONCEPT: Hybrid RSC + CSR Boundary]
+// This page is a React Server Component (RSC).
+// It fetches initial data server-side and passes it to a 'use client' container.
+// This ensures fast initial render (LCP) and interactive filtering (UX).
+
+// [CONCEPT: Dynamic Rendering]
+// Use force-dynamic to always provide fresh transaction data.
+export const dynamic = 'force-dynamic';
+
 export default async function TransactionsPage({
   searchParams,
 }: {
@@ -13,7 +22,7 @@ export default async function TransactionsPage({
   const initialTransactions = await getTransactions(query, page);
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader title="Transactions" />
       <TransactionsContainer initialData={initialTransactions} />
     </div>

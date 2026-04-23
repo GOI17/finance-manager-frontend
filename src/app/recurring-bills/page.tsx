@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { getRecurringBills, Bill } from "@/lib/data";
 import { BillSkeleton } from "@/components/ui/Skeletons";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 /**
  * Pedagogical Example: Parallel Fetching with Granular Streaming

@@ -30,6 +30,23 @@ export interface Bill {
   isPaid: boolean;
 }
 
+export interface Pot {
+  id: string;
+  name: string;
+  target: number;
+  total: number;
+  color: string;
+}
+
+export interface Transaction {
+  id: string;
+  name: string;
+  category: string;
+  date: string;
+  amount: number;
+  avatar: string;
+}
+
 export const getBalance = async (): Promise<Balance> => {
   await delay();
   return {
@@ -83,14 +100,6 @@ export const getRecurringBills = async (): Promise<Bill[]> => {
   ];
 };
 
-export interface Pot {
-  id: string;
-  name: string;
-  target: number;
-  total: number;
-  color: string;
-}
-
 export const getPots = async (): Promise<Pot[]> => {
   await delay();
   return [
@@ -100,15 +109,6 @@ export const getPots = async (): Promise<Pot[]> => {
     { id: '4', name: 'New Laptop', target: 1000.00, total: 10.00, color: '#F2CDAC' },
   ];
 };
-
-export interface Transaction {
-  id: string;
-  name: string;
-  category: string;
-  date: string;
-  amount: number;
-  avatar: string;
-}
 
 export const getTransactions = async (
   query: string = '', 
@@ -163,4 +163,16 @@ export const getTransactions = async (
   const pageSize = 10;
   const start = (page - 1) * pageSize;
   return filtered.slice(start, start + pageSize);
+};
+
+// Compatibility export for origin/main calls
+export const getBills = getRecurringBills;
+export const getOverviewData = async () => {
+  const [balance, transactions, budgets, pots] = await Promise.all([
+    getBalance(),
+    getTransactions(),
+    getBudgets(),
+    getPots()
+  ]);
+  return { balance, transactions, budgets, pots };
 };
