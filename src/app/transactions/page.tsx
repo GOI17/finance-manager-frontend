@@ -1,6 +1,6 @@
 import { PageHeader } from "@/components/PageHeader";
+import { TransactionsContainer } from "@/components/transactions/TransactionsContainer";
 import { getTransactions } from "@/lib/data";
-import TransactionsContainer from "@/components/transactions/TransactionsContainer";
 
 // [CONCEPT: Hybrid RSC + CSR Boundary]
 // This page is a React Server Component (RSC).
@@ -11,19 +11,20 @@ import TransactionsContainer from "@/components/transactions/TransactionsContain
 // Use force-dynamic to always provide fresh transaction data.
 export const dynamic = 'force-dynamic';
 
-export default async function TransactionsPage() {
-  const transactions = await getTransactions();
-  
-  // Extract unique categories for the filters
-  const categories = Array.from(new Set(transactions.map(t => t.category)));
+export default async function TransactionsPage({
+  searchParams,
+}: {
+  searchParams: { query?: string; page?: string };
+}) {
+  const query = searchParams?.query || "";
+  const page = parseInt(searchParams?.page || "1");
+
+  const initialTransactions = await getTransactions(query, page);
 
   return (
     <div className="space-y-6">
       <PageHeader title="Transactions" />
-      <TransactionsContainer 
-        initialTransactions={transactions} 
-        categories={categories} 
-      />
+      <TransactionsContainer initialData={initialTransactions} />
     </div>
   );
 }

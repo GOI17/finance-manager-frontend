@@ -1,38 +1,45 @@
 import { Suspense } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { BalanceSummary } from "@/components/overview/BalanceSummary";
-import { RecentTransactions } from "@/components/overview/RecentTransactions";
-import { BalanceSkeleton, WidgetSkeleton } from "@/components/ui/Skeleton";
+import { OverviewBalance } from "@/components/overview/OverviewBalance";
+import { OverviewTransactions } from "@/components/overview/OverviewTransactions";
+import { OverviewBudgets } from "@/components/overview/OverviewBudgets";
+import { BalanceSkeleton, TransactionRowSkeleton, BudgetSkeleton } from "@/components/ui/Skeletons";
 
-// [CONCEPT: SSR + Streaming]
-// This page is a Server Component. It fetches data and uses Suspense to stream in components.
-// The PageHeader and Layout (Sidebar, TopNav) render immediately.
-// Widgets stream in as their async data requirements are met.
-
-// [CONCEPT: Dynamic Rendering]
-// Force dynamic rendering to ensure the overview always reflects the latest state.
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default function OverviewPage() {
   return (
     <div className="space-y-8">
       <PageHeader title="Overview" />
 
-      {/* Primary Balance Metrics - Streamed */}
+      {/* 
+        Requirement: Granular Streaming with Suspense
+        Requirement: Server-Side Parallel Orchestration
+        These independent async components trigger their own data fetching. 
+        Next.js will stream the results as they become available.
+      */}
+
       <Suspense fallback={<BalanceSkeleton />}>
-        <BalanceSummary />
+        <OverviewBalance />
       </Suspense>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent Transactions - Streamed */}
-        <Suspense fallback={<WidgetSkeleton />}>
-          <RecentTransactions />
+        <Suspense fallback={
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+             <div className="flex justify-between items-center mb-6">
+                <div className="h-6 w-32 bg-slate-100 animate-pulse rounded"></div>
+             </div>
+             <div className="space-y-4">
+                {[1, 2, 3, 4, 5].map(i => <TransactionRowSkeleton key={i} />)}
+             </div>
+          </div>
+        }>
+          <OverviewTransactions />
         </Suspense>
 
-        {/* Secondary widgets would go here (Budgets, Pots) */}
-        <div className="bg-slate-100 rounded-xl p-6 border border-dashed border-slate-300 flex items-center justify-center text-slate-400">
-          <p className="text-sm italic">Additional widgets (Budgets, Pots) placeholder...</p>
-        </div>
+        <Suspense fallback={<BudgetSkeleton />}>
+          <OverviewBudgets />
+        </Suspense>
       </div>
     </div>
   );
