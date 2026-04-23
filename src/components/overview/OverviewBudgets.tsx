@@ -1,4 +1,5 @@
 import { getBudgets } from "@/lib/data";
+import Link from "next/link";
 
 export async function OverviewBudgets() {
   const budgets = await getBudgets();
@@ -7,7 +8,7 @@ export async function OverviewBudgets() {
     <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-slate-900">Budgets</h2>
-        <a href="/budgets" className="text-sm text-slate-500 hover:text-slate-900">See Details</a>
+        <Link href="/budgets" className="text-sm text-slate-500 hover:text-slate-900">See Details</Link>
       </div>
       
       <div className="flex flex-col md:flex-row gap-8 items-center">
