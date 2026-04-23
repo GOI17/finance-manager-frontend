@@ -5,7 +5,7 @@ export interface Transaction {
   category: string;
   date: string;
   avatar: string;
-  isNew: boolean;
+  isNew?: boolean;
 }
 
 export interface Budget {
