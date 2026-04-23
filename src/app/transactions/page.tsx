@@ -1,12 +1,21 @@
 import { PageHeader } from "@/components/PageHeader";
+import { TransactionsContainer } from "@/components/transactions/TransactionsContainer";
+import { getTransactions } from "@/lib/data";
 
-export default function TransactionsPage() {
+export default async function TransactionsPage({
+  searchParams,
+}: {
+  searchParams: { query?: string; page?: string };
+}) {
+  const query = searchParams?.query || "";
+  const page = parseInt(searchParams?.page || "1");
+
+  const initialTransactions = await getTransactions(query, page);
+
   return (
     <div>
       <PageHeader title="Transactions" />
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <p className="text-slate-600 italic">Transactions history placeholder...</p>
-      </div>
+      <TransactionsContainer initialData={initialTransactions} />
     </div>
   );
 }
