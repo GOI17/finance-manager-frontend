@@ -1,0 +1,48 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
+interface CacheStatusProps {
+  timestamp: number;
+  label?: string;
+  revalidate?: number | false;
+}
+
+export default function CacheStatus({ timestamp, label = 'Data Age', revalidate }: CacheStatusProps) {
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const secondsAgo = Math.floor((now - timestamp) / 1000);
+  const isStale = revalidate && secondsAgo >= revalidate;
+
+  // Visual feedback: green for fresh, yellow for nearing revalidation, red for stale
+  const getStatusColor = () => {
+    if (!revalidate) return 'bg-emerald-500';
+    if (secondsAgo >= revalidate) return 'bg-rose-500';
+    if (secondsAgo >= revalidate * 0.75) return 'bg-amber-500';
+    return 'bg-emerald-500';
+  };
+
+  return (
+    <div className="flex items-center gap-3 p-3 bg-white border border-stone-200 rounded-lg shadow-sm">
+      <div className={`w-3 h-3 rounded-full ${getStatusColor()} animate-pulse`} />
+      <div className="flex flex-col">
+        <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">{label}</span>
+        <span className="text-sm font-medium text-stone-800">
+          {secondsAgo}s ago <span className="text-stone-400 font-normal">({new Date(timestamp).toLocaleTimeString()})</span>
+        </span>
+        {revalidate && (
+          <span className="text-[10px] text-stone-400">
+            Revalidates every {revalidate}s {isStale && '• STALE'}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
