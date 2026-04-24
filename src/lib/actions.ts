@@ -16,7 +16,7 @@ export async function purgePath(path: string) {
  * Used to demonstrate granular Data Cache invalidation.
  */
 export async function purgeTag(tag: string) {
-  revalidateTag(tag, 'page');
+  revalidateTag(tag, 'max');
 }
 
 export type ActionState = {
@@ -31,7 +31,7 @@ export type ActionState = {
  */
 export async function revalidateAction(path: string = '/demos/actions', tag: string = 'transactions') {
   revalidatePath(path);
-  revalidateTag(tag, 'page');
+  revalidateTag(tag, 'max');
 }
 
 /**
