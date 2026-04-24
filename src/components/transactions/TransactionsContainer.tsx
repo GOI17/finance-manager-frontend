@@ -4,6 +4,7 @@ import { Transaction } from "@/lib/data";
 import useSWR from "swr";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -125,8 +126,19 @@ export function TransactionsContainer({ initialData }: TransactionsContainerProp
                   <tr key={t.id} className="text-sm">
                     <td className="py-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xs font-bold">
-                          {t.name.charAt(0)}
+                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xs font-bold overflow-hidden relative">
+                          {t.avatar ? (
+                            <Image 
+                              src={t.avatar} 
+                              alt={t.name}
+                              width={32}
+                              height={32}
+                              className="object-cover"
+                              loading="lazy"
+                            />
+                          ) : (
+                            t.name.charAt(0)
+                          )}
                         </div>
                         <span className="font-bold text-slate-900">{t.name}</span>
                       </div>
