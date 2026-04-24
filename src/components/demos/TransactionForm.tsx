@@ -4,6 +4,21 @@ import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { createTransaction, ActionState } from '@/lib/actions';
 
+declare global {
+  interface Window {
+    addOptimisticTransaction?: (transaction: {
+      id: string;
+      name: string;
+      amount: number;
+      category: string;
+      date: string;
+      avatar: string;
+      isPending?: boolean;
+      isNew?: boolean;
+    }) => void;
+  }
+}
+
 const initialState: ActionState = {
   success: false,
   message: '',
@@ -24,29 +39,29 @@ function SubmitButton() {
 }
 
 export default function TransactionForm() {
-  const [state, formAction] = useActionState(async (prevState: ActionState | null, formData: FormData) => {
-    const name = formData.get('name') as string;
-    const amount = parseFloat(formData.get('amount') as string);
-    const category = formData.get('category') as string;
+  const [state, formAction] = useActionState(createTransaction, initialState);
 
-    // Trigger optimistic update if the adder exists on window
-    if (typeof window !== 'undefined' && (window as any).addOptimisticTransaction && name && !isNaN(amount) && category) {
-      (window as any).addOptimisticTransaction({
-        id: 'temp-' + Date.now(),
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const formData = new FormData(event.currentTarget);
+    const name = (formData.get('name') as string) || '';
+    const amount = parseFloat((formData.get('amount') as string) || '');
+    const category = (formData.get('category') as string) || '';
+
+    if (window.addOptimisticTransaction && name && !Number.isNaN(amount) && category) {
+      window.addOptimisticTransaction({
+        id: `temp-${Date.now()}`,
         name,
         amount,
         category,
         date: new Date().toISOString(),
         avatar: '/avatars/general.jpg',
-        isPending: true // We can use this to style it
+        isPending: true,
       });
     }
-
-    return createTransaction(prevState, formData);
-  }, initialState);
+  };
 
   return (
-    <form action={formAction} className="space-y-4 rounded-xl bg-white p-6 shadow-sm">
+    <form action={formAction} onSubmit={handleSubmit} className="space-y-4 rounded-xl bg-white p-6 shadow-sm">
       <h2 className="text-xl font-bold text-grey-900">Add New Transaction</h2>
       
       {state.message && (
@@ -126,7 +141,7 @@ export default function TransactionForm() {
       </div>
 
       <p className="text-center text-[10px] text-grey-500">
-        Tip: Type "error" in name to simulate a server failure.
+        Tip: Type &quot;error&quot; in name to simulate a server failure.
       </p>
     </form>
   );

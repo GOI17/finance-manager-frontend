@@ -17,7 +17,7 @@ import type { NextRequest } from 'next/server';
  * ensuring it doesn't slow down the rest of our application.
  */
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // 1. Log that the middleware was triggered
   console.log(`[Middleware] Intercepted request to: ${request.nextUrl.pathname}`);
 

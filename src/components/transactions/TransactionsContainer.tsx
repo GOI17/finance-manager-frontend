@@ -3,7 +3,7 @@
 import { Transaction, TransactionResponse } from "@/lib/data";
 import useSWR from "swr";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Avatar from "@/components/ui/Avatar";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -24,7 +24,7 @@ export function TransactionsContainer({ initialData }: TransactionsContainerProp
   const sort = searchParams.get('sort') || 'Latest';
   const page = searchParams.get('page') || '1';
   
-  const { data, error, isLoading } = useSWR<TransactionResponse>(
+  const { data, isLoading } = useSWR<TransactionResponse>(
     `/api/transactions?query=${query}&category=${category}&sort=${sort}&page=${page}`,
     fetcher,
     { fallbackData: initialData }
@@ -32,12 +32,12 @@ export function TransactionsContainer({ initialData }: TransactionsContainerProp
 
   const [searchTerm, setSearchTerm] = useState(query);
 
-  const handleParamChange = (name: string, value: string) => {
+  const handleParamChange = useCallback((name: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set(name, value);
     params.set('page', '1'); // Reset page on filter change
     router.push(`/transactions?${params.toString()}`);
-  };
+  }, [router, searchParams]);
 
   // Debounce search update
   useEffect(() => {
@@ -48,7 +48,7 @@ export function TransactionsContainer({ initialData }: TransactionsContainerProp
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchTerm, query]);
+  }, [searchTerm, query, handleParamChange]);
 
   const transactions = data?.transactions || initialData.transactions;
   const hasMore = data?.hasMore ?? initialData.hasMore;

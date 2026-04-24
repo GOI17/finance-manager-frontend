@@ -13,6 +13,7 @@ export function Sidebar({ className }: { className?: string }) {
   return (
     <aside className={cn(
       "fixed bottom-0 left-0 right-0 z-50 flex h-16 bg-grey-900 text-white lg:sticky lg:top-0 lg:flex-col lg:h-screen transition-all duration-300",
+      "h-[calc(4rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] lg:h-screen lg:pb-0",
       isCollapsed ? "lg:w-20" : "lg:w-64",
       "md:h-20 md:px-6 lg:px-0",
       className
