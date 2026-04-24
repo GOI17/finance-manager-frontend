@@ -1,15 +1,15 @@
 'use client';
 
-import { Transaction } from "@/lib/data";
+import { Transaction, TransactionResponse } from "@/lib/data";
 import useSWR from "swr";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import Avatar from "@/components/ui/Avatar";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface TransactionsContainerProps {
-  initialData: Transaction[];
+  initialData: TransactionResponse;
 }
 
 // [CONCEPT: State Management at Client Boundary]
@@ -24,7 +24,7 @@ export function TransactionsContainer({ initialData }: TransactionsContainerProp
   const sort = searchParams.get('sort') || 'Latest';
   const page = searchParams.get('page') || '1';
   
-  const { data, error, isLoading } = useSWR<Transaction[]>(
+  const { data, error, isLoading } = useSWR<TransactionResponse>(
     `/api/transactions?query=${query}&category=${category}&sort=${sort}&page=${page}`,
     fetcher,
     { fallbackData: initialData }
@@ -50,14 +50,17 @@ export function TransactionsContainer({ initialData }: TransactionsContainerProp
     return () => clearTimeout(timer);
   }, [searchTerm, query]);
 
-  const transactions = data || initialData;
+  const transactions = data?.transactions || initialData.transactions;
+  const hasMore = data?.hasMore ?? initialData.hasMore;
 
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div className="flex flex-col md:flex-row gap-4 justify-between mb-8">
           <div className="relative w-full md:w-64">
+            <label htmlFor="transaction-search" className="sr-only">Search transactions</label>
             <input
+              id="transaction-search"
               type="text"
               placeholder="Search transactions"
               className="w-full pl-4 pr-10 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900"
@@ -72,33 +75,44 @@ export function TransactionsContainer({ initialData }: TransactionsContainerProp
           </div>
           
           <div className="flex gap-4">
-            <select 
-              value={sort}
-              onChange={(e) => handleParamChange('sort', e.target.value)}
-              className="px-4 py-2 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-slate-900"
-            >
-              <option value="Latest">Latest</option>
-              <option value="Oldest">Oldest</option>
-              <option value="Highest">Highest</option>
-              <option value="Lowest">Lowest</option>
-            </select>
-            <select 
-              value={category}
-              onChange={(e) => handleParamChange('category', e.target.value)}
-              className="px-4 py-2 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-slate-900"
-            >
-              <option value="All Categories">All Categories</option>
-              <option value="Entertainment">Entertainment</option>
-              <option value="Bills">Bills</option>
-              <option value="Groceries">Groceries</option>
-              <option value="Dining Out">Dining Out</option>
-              <option value="Transportation">Transportation</option>
-              <option value="Personal Care">Personal Care</option>
-              <option value="Education">Education</option>
-              <option value="Lifestyle">Lifestyle</option>
-              <option value="Shopping">Shopping</option>
-              <option value="General">General</option>
-            </select>
+            <div className="flex items-center gap-2">
+              <label htmlFor="sort-select" className="hidden lg:block text-slate-500 text-sm">Sort by</label>
+              <select 
+                id="sort-select"
+                aria-label="Sort transactions by"
+                value={sort}
+                onChange={(e) => handleParamChange('sort', e.target.value)}
+                className="px-4 py-2 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-slate-900"
+              >
+                <option value="Latest">Latest</option>
+                <option value="Oldest">Oldest</option>
+                <option value="Highest">Highest</option>
+                <option value="Lowest">Lowest</option>
+              </select>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <label htmlFor="category-select" className="hidden lg:block text-slate-500 text-sm">Category</label>
+              <select 
+                id="category-select"
+                aria-label="Filter transactions by category"
+                value={category}
+                onChange={(e) => handleParamChange('category', e.target.value)}
+                className="px-4 py-2 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-slate-900"
+              >
+                <option value="All Categories">All Categories</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Bills">Bills</option>
+                <option value="Groceries">Groceries</option>
+                <option value="Dining Out">Dining Out</option>
+                <option value="Transportation">Transportation</option>
+                <option value="Personal Care">Personal Care</option>
+                <option value="Education">Education</option>
+                <option value="Lifestyle">Lifestyle</option>
+                <option value="Shopping">Shopping</option>
+                <option value="General">General</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -106,10 +120,10 @@ export function TransactionsContainer({ initialData }: TransactionsContainerProp
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-slate-100 text-slate-500 text-sm">
-                <th className="pb-4 font-normal">Recipient / Sender</th>
-                <th className="pb-4 font-normal">Category</th>
-                <th className="pb-4 font-normal">Transaction Date</th>
-                <th className="pb-4 font-normal text-right">Amount</th>
+                <th scope="col" className="pb-4 font-normal">Recipient / Sender</th>
+                <th scope="col" className="pb-4 font-normal">Category</th>
+                <th scope="col" className="pb-4 font-normal">Transaction Date</th>
+                <th scope="col" className="pb-4 font-normal text-right">Amount</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -126,20 +140,14 @@ export function TransactionsContainer({ initialData }: TransactionsContainerProp
                   <tr key={t.id} className="text-sm">
                     <td className="py-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xs font-bold overflow-hidden relative">
-                          {t.avatar ? (
-                            <Image 
-                              src={t.avatar} 
-                              alt={t.name}
-                              width={32}
-                              height={32}
-                              className="object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            t.name.charAt(0)
-                          )}
-                        </div>
+                        <Avatar 
+                          src={t.avatar} 
+                          alt={t.name}
+                          width={32}
+                          height={32}
+                          className="h-8 w-8"
+                          fallbackText={t.name.charAt(0)}
+                        />
                         <span className="font-bold text-slate-900">{t.name}</span>
                       </div>
                     </td>
@@ -159,6 +167,7 @@ export function TransactionsContainer({ initialData }: TransactionsContainerProp
           <div className="flex gap-2">
             <button 
               className="px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50"
+              aria-label="Previous page"
               disabled={parseInt(page) <= 1}
               onClick={() => {
                 const params = new URLSearchParams(searchParams.toString());
@@ -170,7 +179,8 @@ export function TransactionsContainer({ initialData }: TransactionsContainerProp
             </button>
             <button 
               className="px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50"
-              disabled={transactions.length < 10}
+              aria-label="Next page"
+              disabled={!hasMore}
               onClick={() => {
                 const params = new URLSearchParams(searchParams.toString());
                 params.set('page', (parseInt(page) + 1).toString());

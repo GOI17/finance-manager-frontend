@@ -1,9 +1,9 @@
 import { getTransactions } from "@/lib/data";
 import Link from "next/link";
-import Image from "next/image";
+import Avatar from "@/components/ui/Avatar";
 
 export async function OverviewTransactions() {
-  const transactions = await getTransactions();
+  const { transactions } = await getTransactions();
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -15,22 +15,14 @@ export async function OverviewTransactions() {
         {transactions.map((transaction) => (
           <div key={transaction.id} className="flex items-center justify-between py-4 border-b border-slate-100 last:border-0">
             <div className="flex items-center gap-4">
-              <div className="h-10 w-10 rounded-full bg-slate-100 overflow-hidden flex-shrink-0 relative">
-                {transaction.avatar ? (
-                  <Image 
-                    src={transaction.avatar} 
-                    alt={transaction.name}
-                    width={40}
-                    height={40}
-                    className="object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="h-full w-full flex items-center justify-center bg-slate-200 text-slate-500 text-xs uppercase">
-                    {transaction.name.charAt(0)}
-                  </div>
-                )}
-              </div>
+              <Avatar 
+                src={transaction.avatar} 
+                alt={transaction.name}
+                width={40}
+                height={40}
+                className="h-10 w-10"
+                fallbackText={transaction.name.charAt(0)}
+              />
               <div>
                 <p className="font-bold text-slate-900">{transaction.name}</p>
                 <p className="text-sm text-slate-500">{transaction.category}</p>

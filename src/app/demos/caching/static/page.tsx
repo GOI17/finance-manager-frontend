@@ -1,19 +1,16 @@
 import CacheStatus from '@/components/ui/CacheStatus';
 import RevalidateButton from '@/components/ui/revalidation/RevalidateButton';
 import { purgePath } from '@/lib/actions';
+import { getCacheDemoData } from '@/data/cache-demo';
+import { unstable_cache } from 'next/cache';
 
-async function getStaticData() {
-  // NEXT 16 STATIC DEMO: Do NOT use headers() or searchParams to avoid dynamic leakage
-  // In a real app, use environment variables for the base URL
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  
-  const res = await fetch(`${baseUrl}/api/cache-demo`, {
-    // Default is force-cache for static segments, but we'll be explicit
-    cache: 'force-cache',
-    next: { tags: ['static-demo'] }
-  });
-  return res.json();
-}
+// Using unstable_cache to keep the teaching intent of shared data cache
+// while avoiding network self-fetch during prerender.
+const getStaticData = unstable_cache(
+  async () => getCacheDemoData(),
+  ['static-demo-data'],
+  { tags: ['static-demo'] }
+);
 
 export default async function StaticPage() {
   const { data, timestamp } = await getStaticData();
