@@ -1,9 +1,15 @@
 import { cn } from '@/lib/utils';
 
-export function PageHeader({ title, className }: { title: string, className?: string }) {
+interface PageHeaderProps {
+  title: string;
+  className?: string;
+  as?: 'h1' | 'h2' | 'h3';
+}
+
+export function PageHeader({ title, className, as: Tag = 'h1' }: PageHeaderProps) {
   return (
     <header className={cn("mb-8", className)}>
-      <h2 className="text-3xl font-bold text-grey-900 tracking-tight">{title}</h2>
+      <Tag className="text-3xl font-bold text-grey-900 tracking-tight">{title}</Tag>
     </header>
   );
 }

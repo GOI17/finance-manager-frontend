@@ -1,9 +1,9 @@
 'use client';
 
-import { useOptimistic, startTransition } from 'react';
+import { useOptimistic, startTransition, useEffect } from 'react';
 import { Transaction } from '@/lib/types';
 import { deleteTransaction } from '@/lib/actions';
-import Image from 'next/image';
+import Avatar from '@/components/ui/Avatar';
 
 interface OptimisticTransactionListProps {
   initialTransactions: Transaction[];
@@ -12,16 +12,6 @@ interface OptimisticTransactionListProps {
 export default function OptimisticTransactionList({
   initialTransactions,
 }: OptimisticTransactionListProps) {
-  // Expose the optimistic adder via window for verification/integration demo
-  // In a real app, this would be passed via context or props to the form
-  if (typeof window !== 'undefined') {
-    (window as any).addOptimisticTransaction = (transaction: Transaction) => {
-      startTransition(() => {
-        setOptimisticTransactions({ action: 'add', payload: transaction });
-      });
-    };
-  }
-
   const [optimisticTransactions, setOptimisticTransactions] = useOptimistic(
     initialTransactions,
     (state, { action, payload }: { action: 'delete' | 'add'; payload: any }) => {
@@ -34,6 +24,20 @@ export default function OptimisticTransactionList({
       return state;
     }
   );
+
+  // Expose the optimistic adder via window for verification/integration demo
+  // In a real app, this would be passed via context or props to the form.
+  // Move to useEffect to avoid side effects in render.
+  useEffect(() => {
+    (window as any).addOptimisticTransaction = (transaction: Transaction) => {
+      startTransition(() => {
+        setOptimisticTransactions({ action: 'add', payload: transaction });
+      });
+    };
+    return () => {
+      delete (window as any).addOptimisticTransaction;
+    };
+  }, [setOptimisticTransactions]);
 
   const handleDelete = async (id: string) => {
     startTransition(() => {
@@ -64,14 +68,14 @@ export default function OptimisticTransactionList({
               }`}
             >
               <div className="flex items-center gap-4">
-                <div className="relative h-10 w-10 overflow-hidden rounded-full">
-                  <Image
-                    src={transaction.avatar || '/avatars/general.jpg'}
-                    alt={transaction.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+                <Avatar 
+                  src={transaction.avatar} 
+                  alt={transaction.name}
+                  width={40}
+                  height={40}
+                  className="h-10 w-10"
+                  fallbackText={transaction.name.charAt(0)}
+                />
                 <div>
                   <h3 className="text-sm font-bold text-grey-900">{transaction.name}</h3>
                   <p className="text-xs text-grey-500">{transaction.category}</p>

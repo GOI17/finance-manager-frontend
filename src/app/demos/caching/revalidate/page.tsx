@@ -1,19 +1,19 @@
 import CacheStatus from '@/components/ui/CacheStatus';
 import RevalidateButton from '@/components/ui/revalidation/RevalidateButton';
 import { purgeTag } from '@/lib/actions';
+import { getCacheDemoData } from '@/data/cache-demo';
+import { unstable_cache } from 'next/cache';
 
 // Time-based revalidation (ISR) at the segment level
 export const revalidate = 60;
 
-async function getISRData() {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  
-  // Note: Segment-level revalidate (above) applies if fetch doesn't specify its own
-  const res = await fetch(`${baseUrl}/api/cache-demo`, {
-    next: { tags: ['isr-demo'] }
-  });
-  return res.json();
-}
+// Using unstable_cache to keep the teaching intent of shared data cache
+// while avoiding network self-fetch during prerender.
+const getISRData = unstable_cache(
+  async () => getCacheDemoData(),
+  ['isr-demo-data'],
+  { tags: ['isr-demo'] }
+);
 
 export default async function ISRPage() {
   const { data, timestamp } = await getISRData();

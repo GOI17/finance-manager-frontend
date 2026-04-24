@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 export async function RecentTransactions() {
-  const transactions = await getTransactions();
+  const { transactions } = await getTransactions();
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">

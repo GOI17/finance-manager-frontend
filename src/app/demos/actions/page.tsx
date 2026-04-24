@@ -10,7 +10,7 @@ export const metadata = {
 
 export default async function ActionsLabPage() {
   // Fetch initial data on the server
-  const transactions = await getTransactions();
+  const { transactions } = await getTransactions();
 
   return (
     <div className="container mx-auto max-w-5xl p-6 lg:p-10">

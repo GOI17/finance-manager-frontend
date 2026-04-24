@@ -10,16 +10,21 @@ interface CacheStatusProps {
 }
 
 export default function CacheStatus({ timestamp, label = 'Data Age', revalidate }: CacheStatusProps) {
-  const [now, setNow] = useState(Date.now());
+  // Use timestamp as initial value to ensure hydration match
+  const [now, setNow] = useState(timestamp);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    setNow(Date.now());
     const interval = setInterval(() => {
       setNow(Date.now());
     }, 1000);
     return () => clearInterval(interval);
   }, []);
 
-  const secondsAgo = Math.floor((now - timestamp) / 1000);
+  const effectiveNow = mounted ? now : timestamp;
+  const secondsAgo = Math.floor((effectiveNow - timestamp) / 1000);
   const isStale = revalidate && secondsAgo >= revalidate;
 
   // Visual feedback: green for fresh, yellow for nearing revalidation, red for stale

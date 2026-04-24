@@ -50,6 +50,12 @@ export interface Transaction {
   avatar: string;
 }
 
+export interface TransactionResponse {
+  transactions: Transaction[];
+  totalCount: number;
+  hasMore: boolean;
+}
+
 export const getBalance = async (): Promise<Balance> => {
   await delay();
   return mockDb.getBalance();
@@ -91,7 +97,7 @@ export const getTransactions = async (
   page: number = 1,
   category: string = 'All Categories',
   sort: string = 'Latest'
-): Promise<Transaction[]> => {
+): Promise<TransactionResponse> => {
   await delay();
   const allTransactions = mockDb.getTransactions();
 
@@ -127,17 +133,25 @@ export const getTransactions = async (
 
   const pageSize = 10;
   const start = (page - 1) * pageSize;
-  return filtered.slice(start, start + pageSize);
+  const transactions = filtered.slice(start, start + pageSize);
+  const totalCount = filtered.length;
+  const hasMore = start + pageSize < totalCount;
+
+  return {
+    transactions,
+    totalCount,
+    hasMore
+  };
 };
 
 // Compatibility export for origin/main calls
 export const getBills = getRecurringBills;
 export const getOverviewData = async () => {
-  const [balance, transactions, budgets, pots] = await Promise.all([
+  const [balance, transData, budgets, pots] = await Promise.all([
     getBalance(),
     getTransactions(),
     getBudgets(),
     getPots()
   ]);
-  return { balance, transactions, budgets, pots };
+  return { balance, transactions: transData.transactions, budgets, pots };
 };

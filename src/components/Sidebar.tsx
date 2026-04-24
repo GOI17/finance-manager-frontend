@@ -32,6 +32,7 @@ export function Sidebar({ className }: { className?: string }) {
               key={item.href}
               href={item.href}
               title={isCollapsed ? item.name : undefined}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex flex-col items-center space-y-1 px-4 py-2 transition-colors lg:flex-row lg:space-x-3 lg:space-y-0 lg:rounded-lg lg:py-3",
                 isActive 

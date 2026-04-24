@@ -19,12 +19,12 @@ export default async function TransactionsPage({
   const query = searchParams?.query || "";
   const page = parseInt(searchParams?.page || "1");
 
-  const initialTransactions = await getTransactions(query, page);
+  const data = await getTransactions(query, page);
 
   return (
     <div className="space-y-6">
       <PageHeader title="Transactions" />
-      <TransactionsContainer initialData={initialTransactions} />
+      <TransactionsContainer initialData={data} />
     </div>
   );
 }
