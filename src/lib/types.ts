@@ -6,6 +6,7 @@ export interface Transaction {
   date: string;
   avatar: string;
   isNew?: boolean;
+  isPending?: boolean;
 }
 
 export interface Budget {

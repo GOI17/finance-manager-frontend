@@ -14,10 +14,11 @@ export const dynamic = 'force-dynamic';
 export default async function TransactionsPage({
   searchParams,
 }: {
-  searchParams: { query?: string; page?: string };
+  searchParams: Promise<{ query?: string; page?: string }>;
 }) {
-  const query = searchParams?.query || "";
-  const page = parseInt(searchParams?.page || "1");
+  const resolvedSearchParams = await searchParams;
+  const query = resolvedSearchParams?.query || "";
+  const page = parseInt(resolvedSearchParams?.page || "1");
 
   const data = await getTransactions(query, page);
 

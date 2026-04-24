@@ -14,11 +14,11 @@ export default function OptimisticTransactionList({
 }: OptimisticTransactionListProps) {
   const [optimisticTransactions, setOptimisticTransactions] = useOptimistic(
     initialTransactions,
-    (state, { action, payload }: { action: 'delete' | 'add'; payload: any }) => {
+    (state, { action, payload }: { action: 'delete' | 'add'; payload: string | Transaction }) => {
       if (action === 'delete') {
         return state.filter((t) => t.id !== payload);
       }
-      if (action === 'add') {
+      if (action === 'add' && typeof payload !== 'string') {
         return [payload, ...state];
       }
       return state;
@@ -29,22 +29,21 @@ export default function OptimisticTransactionList({
   // In a real app, this would be passed via context or props to the form.
   // Move to useEffect to avoid side effects in render.
   useEffect(() => {
-    (window as any).addOptimisticTransaction = (transaction: Transaction) => {
+    window.addOptimisticTransaction = (transaction: Transaction) => {
       startTransition(() => {
         setOptimisticTransactions({ action: 'add', payload: transaction });
       });
     };
     return () => {
-      delete (window as any).addOptimisticTransaction;
+      delete window.addOptimisticTransaction;
     };
   }, [setOptimisticTransactions]);
 
   const handleDelete = async (id: string) => {
-    startTransition(() => {
+    startTransition(async () => {
       setOptimisticTransactions({ action: 'delete', payload: id });
+      await deleteTransaction(id);
     });
-    
-    await deleteTransaction(id);
   };
 
   return (
@@ -64,7 +63,7 @@ export default function OptimisticTransactionList({
             <div
               key={transaction.id}
               className={`flex items-center justify-between border-b border-grey-100 pb-4 last:border-0 last:pb-0 ${
-                (transaction as any).isPending ? 'opacity-50' : ''
+                transaction.isPending === true ? 'opacity-50' : ''
               }`}
             >
               <div className="flex items-center gap-4">

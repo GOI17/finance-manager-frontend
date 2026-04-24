@@ -1,7 +1,7 @@
 import { getTransactions } from '@/lib/data';
 import TransactionForm from '@/components/demos/TransactionForm';
 import OptimisticTransactionList from '@/components/demos/OptimisticTransactionList';
-import { resetDatabase } from '@/lib/actions';
+import ResetButton from '@/components/demos/ResetButton';
 
 export const metadata = {
   title: 'Server Actions Lab - Finance Manager',
@@ -22,19 +22,9 @@ export default async function ActionsLabPage() {
           </p>
         </div>
         
-        <form action={async () => {
-          'use server';
-          await resetDatabase();
-        }}>
-          <button 
-            type="submit"
-            className="rounded-lg border border-grey-300 px-4 py-2 text-sm font-medium text-grey-900 transition-colors hover:bg-grey-100"
-          >
-            Reset Lab Data
-          </button>
-        </form>
+        <ResetButton />
       </header>
-
+      
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Left Column: Form */}
         <div className="lg:col-span-1">
